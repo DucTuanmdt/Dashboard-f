@@ -85,14 +85,12 @@
 
 <script>
 import Vue from "vue";
-import LoadScript from "vue-plugin-load-script";
 import merchantForm from "~/components/en/Forms/merchantForm";
 import contactPerson from "~/components/en/Forms/contactPerson";
 import merchantBranches from "~/components/en/Forms/merchantBranches";
 import buttonWithColors from "~/components/en/General/buttonWithColors.vue";
 import snackbar from "~/components/snackbar.vue";
 
-Vue.use(LoadScript);
 
 export default {
   components: {
