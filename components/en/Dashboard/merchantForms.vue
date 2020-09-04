@@ -127,6 +127,7 @@ export default {
   },
   mounted() {
     this.initAutocomplete();
+    console.log("The code is updated")
   },
   methods: {
     toggleBranches() {
