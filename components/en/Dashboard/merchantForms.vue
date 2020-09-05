@@ -128,7 +128,7 @@ export default {
       status = true;
       const data = this.$refs.mForm;
       console.log(data.location);
-      if (!data.location.lat || !data.location.lng) {
+      if (!data.location.lat || !data.location.long) {
         this.$refs.snackbar.open(
           "Sorry, Please fill the location field",
           4500,
