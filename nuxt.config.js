@@ -5,7 +5,7 @@ export default {
   mode: "spa",
   server: {
     port: 5000, // default: 3000
-    //host: "127.0.0.1", // default: localhost
+    host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost'
   },
   plugins: [
     { src: "~/plugins/vue2-google-maps", mode: 'client' },

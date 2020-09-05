@@ -104,22 +104,14 @@
                 />
                 <div class="en-singleBranch-main-right" >
                   <v-text-field
+                    id="search-field-map-input"
                     v-model="place"
                     :success="placeIsCorrect"
                     :rules="[(v) => !!v || 'Place is required']"
                     label="Search for a place"
-                    autocomplete="off"
-                    @input="SearchForAplace"
+                    placeholder="Search for a place"
                   />
-                  <div class="alert h6">{{ selected_place + ' ' + location_status }}</div>
-                  <div v-if="suggestions != ''" class="maps-suggestions">
-                    <div v-for="suggest in suggestions" :key="suggest.id" class="map-suggest">
-                      <div :posTitle="suggest.position" :showTitle="suggest.title" @click="clickForPlace">
-                        {{ suggest.title }}
-                        <span style="font-size: 10px;">{{ (suggest.vicinity) }}</span>
-                      </div>
-                    </div>
-                  </div>
+                  
                 </div>
 
                 <form
@@ -170,12 +162,14 @@
 import { required, integer, email } from "vuelidate/lib/validators"
 import GoogleMapsNative from "~/components/en/General/GoogleMapsNative.vue"
 import notification from "~/components/en/General/notification.vue"
+import InputMapSearchPlace from "@/components/input-map-search-place.vue"
 
 export default {
   name: "MerchantForm",
   components: {
     GoogleMapsNative,
     notification,
+    InputMapSearchPlace,
   },
   props: {
     showMap: {
@@ -239,6 +233,7 @@ export default {
     },
   },
   mounted () {
+    this.initAutocompleteMapInput();
     this.$axios.get("/categories", {
       headers: { authorization: localStorage.getItem("token"), },
     }).then((data) => {
@@ -348,6 +343,29 @@ export default {
         this.flatCategories.push(cat)
         if (cat.root.length) { this.flattenCategoriesRecursively(cat.root) } else {}
       })
+    },
+    initAutocompleteMapInput() {
+      // Create the search box and link it to the UI element.
+      const searchInput = document.querySelector("#search-field-map-input");
+      if (!searchInput) {
+        return;
+      }
+      this.mapInputAutocomplete = new google.maps.places.SearchBox(searchInput);
+
+      // Listen for the event fired when the user selects a prediction and retrieve
+      // more details for that place.
+      this.mapInputAutocomplete.addListener("places_changed", () => {
+        const place = this.mapInputAutocomplete.getPlaces()[0];
+        if ((place.geometry || {}).location) {
+          console.log("DX", place)
+          this.place = place.name
+          this.location = JSON.parse(JSON.stringify(place.geometry.location));
+          this.location_status = "selected"
+          console.log("Selected new place", this.location);
+        } else {
+          searchInput.value = "";
+        }
+      });
     },
   },
   // validations: {

@@ -70,16 +70,8 @@
         </div>
       </v-layout>
     </v-layout>
-    <div class="mb-4">
-      <input
-        id="pac-input"
-        ref="searchPlaceInput"
-        class="controls p-2 m-2"
-        type="text"
-        placeholder="Type your store's name or address"
-      />
-      <div id="map"></div>
-    </div>
+    <!-- <map-search-place/> -->
+    <!-- <input-map-search-place @onSelectedNewPlace="handleSelectedNewPlace"/> -->
   </div>
 </template>
 
@@ -90,8 +82,8 @@ import contactPerson from "~/components/en/Forms/contactPerson";
 import merchantBranches from "~/components/en/Forms/merchantBranches";
 import buttonWithColors from "~/components/en/General/buttonWithColors.vue";
 import snackbar from "~/components/snackbar.vue";
-
-
+import MapSearchPlace from "@/components/map-search-place.vue"
+import InputMapSearchPlace from "@/components/input-map-search-place.vue"
 export default {
   components: {
     merchantForm,
@@ -99,6 +91,8 @@ export default {
     merchantBranches,
     buttonWithColors,
     snackbar,
+    MapSearchPlace,
+    InputMapSearchPlace
   },
 
   data() {
@@ -124,10 +118,6 @@ export default {
     showMap() {
       return true;
     },
-  },
-  mounted() {
-    this.initAutocomplete();
-    console.log("The code is updated")
   },
   methods: {
     toggleBranches() {
@@ -314,86 +304,9 @@ export default {
         );
       }
     },
-
-    initAutocomplete() {
-      this.mapElement = new google.maps.Map(document.getElementById("map"), {
-        // set your default location here
-        center: { lat: 30.04, lng: 31.23 },
-        zoom: 15,
-        mapTypeId: "roadmap",
-        disableDefaultUI: true,
-      });
-
-      // Create the search box and link it to the UI element.
-      const searchInput = this.$refs.searchPlaceInput;
-      if (!searchInput) {
-        return;
-      }
-      const searchBox = new google.maps.places.SearchBox(searchInput);
-      this.mapElement.controls[google.maps.ControlPosition.TOP_CENTER].push(
-        searchInput
-      );
-
-      // Bias the SearchBox results towards current map's viewport.
-      this.mapElement.addListener("bounds_changed", () => {
-        searchBox.setBounds(this.mapElement.getBounds());
-      });
-
-      // Listen for the event fired when the user selects a prediction and retrieve
-      // more details for that place.
-      if (this.mapData.place) {
-        this.setMarker([this.mapData.place]);
-        searchInput.value = this.mapData.place.formatted_address || "";
-      }
-      searchBox.addListener("places_changed", () => {
-        var places = searchBox.getPlaces();
-        this.setMarker(places);
-      });
-    },
-    setMarker(places) {
-      if (places.length == 0) {
-        return;
-      }
-
-      // Clear out the old markers.
-      this.markers.forEach(function (marker) {
-        marker.setMap(null);
-      });
-      this.markers = [];
-
-      // For each place, get the name and location.
-      var bounds = new google.maps.LatLngBounds();
-      places.forEach((place) => {
-        if (!place.geometry) {
-          console.log("Returned place contains no geometry");
-          return;
-        }
-
-        // Create a marker for each place.
-        this.markers.push(
-          new google.maps.Marker({
-            map: this.mapElement,
-            title: place.formatted_address,
-            position: place.geometry.location,
-          })
-        );
-        this.mapData.place = {
-          geometry: place.geometry,
-          formatted_address: place.formatted_address,
-        };
-        this.mapData.placeLocation = JSON.parse(JSON.stringify(this.mapData.place)).geometry.location;
-        console.log("DX", this.mapData.placeLocation)
-
-
-        if (place.geometry.viewport) {
-          // Only geocodes have viewport.
-          bounds.union(place.geometry.viewport);
-        } else {
-          bounds.extend(place.geometry.location);
-        }
-      });
-      this.mapElement.fitBounds(bounds);
-    },
+    handleSelectedNewPlace(data) {
+      console.log("Received new location", data)
+    }
   },
 };
 </script>
@@ -401,78 +314,5 @@ export default {
 <style scoped>
 .w-full {
   width: 100%;
-}
-#map {
-  min-height: 360px;
-  height: 100%;
-}
-
-#description {
-  font-family: Roboto;
-  font-size: 15px;
-  font-weight: 300;
-}
-
-#infowindow-content .title {
-  font-weight: bold;
-}
-
-#infowindow-content {
-  display: none;
-}
-
-#map #infowindow-content {
-  display: inline;
-}
-
-.pac-card {
-  margin: 10px 10px 0 0;
-  border-radius: 2px 0 0 2px;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  outline: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  background-color: #fff;
-  font-family: Roboto;
-}
-
-#pac-container {
-  padding-bottom: 12px;
-  margin-right: 12px;
-}
-
-.pac-controls {
-  display: inline-block;
-  padding: 5px 11px;
-}
-
-.pac-controls label {
-  font-family: Roboto;
-  font-size: 13px;
-  font-weight: 300;
-}
-
-#pac-input {
-  background-color: #fff;
-  font-size: 15px;
-  font-weight: 300;
-  margin-left: 12px;
-  text-overflow: ellipsis;
-  width: 400px;
-}
-
-#pac-input:focus {
-  border: none !important;
-}
-
-#title {
-  color: #fff;
-  background-color: #4d90fe;
-  font-size: 25px;
-  font-weight: 500;
-  padding: 6px 12px;
-}
-#target {
-  width: 345px;
 }
 </style>
