@@ -19,6 +19,9 @@ export default {
     },
   },
   layout: "adminlayout",
+  mounted() {
+    console.log("Ne bab")
+  }
 }
 </script>
 

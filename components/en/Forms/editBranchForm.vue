@@ -73,7 +73,7 @@
             required
           />
           <div class="en-singleBranch-main-right">
-            <v-text-field
+            <!-- <v-text-field
               v-model="place"
               :success="placeIsCorrect"
               :rules="[(v) => !!v || 'Place is required']"
@@ -89,7 +89,8 @@
                   <span style="font-size: 10px;">{{ (suggest.vicinity) }}</span>
                 </div>
               </div>
-            </div>
+            </div> -->
+              <map-search-place @onSelectedNewPlace="handleSelectedNewPlace"/>
           </div>
 
           <div class="en-CategoryForm-content-row">
@@ -125,6 +126,7 @@
   import buttonWithColors from "~/components/en/General/buttonWithColors.vue"
   import notification from "~/components/en/General/notification.vue"
   import {required} from "vuelidate/lib/validators"
+  import MapSearchPlace from "@/components/map-search-place.vue"
 
   export default {
     name: "EditBranchForm",
@@ -134,6 +136,7 @@
       buttonWithColors,
       notification,
       selectInput,
+      MapSearchPlace,
     },
     props: {
       branch: {},
@@ -352,6 +355,11 @@
         updateBranch()
 
       },
+      handleSelectedNewPlace(data) {
+        console.log('Received new location', data)
+        this.branchData.location = data.location;
+        this.place = data.address
+    }
     },
   }
 </script>

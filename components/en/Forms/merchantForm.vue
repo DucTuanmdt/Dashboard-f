@@ -373,7 +373,6 @@ export default {
       this.location_status = "selected";
       this.location = data.location;
       this.place = data.address
-
     }
   },
   // validations: {

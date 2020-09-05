@@ -1,14 +1,23 @@
 <template>
   <div class="mb-4">
-      <v-text-field id="search-map-input" placeholder="Search for a place"></v-text-field>
-    <div id="map"></div>
+    <v-text-field :id="mapInputUniqId" placeholder="Search for a place"></v-text-field>
+    <div :id="mapUniqId" class="map-container"></div>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    location: {
+      type: Object,
+      default: null,
+    },
+  },
   data() {
     return {
+      firstLoad: true,
+      mapUniqId: "",
+      mapInputUniqId: "",
       mapData: {
         place: null,
         placeLocation: "",
@@ -16,30 +25,44 @@ export default {
       mapElement: null,
       markers: [],
       mapInput: null,
+      searchInput: null,
     };
   },
-
+  created() {
+    this.mapUniqId = this.generateId();
+    this.mapInputUniqId = this.generateId();
+  },
   mounted() {
     this.initAutocomplete();
-    console.log("The code is updated (map-search-place) v2");
+    console.log("The code is updated (map-search-place) v3");
   },
   methods: {
-    initAutocomplete() {
-      this.mapElement = new google.maps.Map(document.getElementById("map"), {
-        // set your default location here
-        center: { lat: 30.04, lng: 31.23 },
-        zoom: 15,
-        mapTypeId: "roadmap",
-        disableDefaultUI: true,
+    generateId() {
+      return "xxxx-xxxx-yxxx-yxxx-xxxx".replace(/[xy]/g, function (c) {
+        var r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
       });
+    },
+    initAutocomplete() {
+      console.log("EL", document.getElementById(this.mapUniqId));
+      this.mapElement = new google.maps.Map(
+        document.getElementById(this.mapUniqId),
+        {
+          // set your default location here
+          center: { lat: 30.04, lng: 31.23 },
+          zoom: 15,
+          mapTypeId: "roadmap",
+          disableDefaultUI: true,
+        }
+      );
 
       // Create the search box and link it to the UI element.
-      // const searchInput = this.$refs.searchPlaceInput;
-      const searchInput = document.querySelector("#search-map-input");
-      if (!searchInput) {
+      this.searchInput = document.getElementById(this.mapInputUniqId);
+      if (!this.searchInput) {
         return;
       }
-      const searchBox = new google.maps.places.SearchBox(searchInput);
+      const searchBox = new google.maps.places.SearchBox(this.searchInput);
 
       // Bias the SearchBox results towards current map's viewport.
       this.mapElement.addListener("bounds_changed", () => {
@@ -50,7 +73,7 @@ export default {
       // more details for that place.
       if (this.mapData.place) {
         this.setMarker([this.mapData.place]);
-        searchInput.value = this.mapData.place.formatted_address || "";
+        this.searchInput.value = this.mapData.place.formatted_address || "";
       }
       searchBox.addListener("places_changed", () => {
         console.log("AN", searchBox.getPlaces());
@@ -90,9 +113,9 @@ export default {
           formatted_address: place.formatted_address,
         };
         const location = JSON.parse(JSON.stringify(place.geometry.location));
-        location.lat = location.lat + '';
-        location.long = location.lng + '';
-        delete location.lng
+        location.lat = location.lat + "";
+        location.long = location.lng + "";
+        delete location.lng;
         const data = {
           address: place.name,
           location,
@@ -102,7 +125,6 @@ export default {
         this.mapData.placeLocation = JSON.parse(
           JSON.stringify(this.mapData.place)
         ).geometry.location;
-        console.log("DX", this.mapData.placeLocation);
 
         if (place.geometry.viewport) {
           // Only geocodes have viewport.
@@ -113,12 +135,44 @@ export default {
       });
       this.mapElement.fitBounds(bounds);
     },
+    getLocationFromLatLng() {
+      const geocoder = new google.maps.Geocoder();
+      const infowindow = new google.maps.InfoWindow();
+      const latlng = {
+        lat: +this.location.lat,
+        lng: +this.location.long,
+      };
+      geocoder.geocode({ location: latlng }, (results, status) => {
+        if (status === "OK") {
+          this.firstLoad = false;
+          if (results[0]) {
+            this.mapElement.setZoom(11);
+            const marker = new google.maps.Marker({
+              position: latlng,
+              map: this.mapElement,
+            });
+            this.searchInput.value = results[0].formatted_address;
+            infowindow.setContent(results[0].formatted_address);
+            infowindow.open(this.mapElement, marker);
+          } else {
+            window.alert("No results found");
+          }
+        } else {
+          window.alert("Geocoder failed due to: " + status);
+        }
+      });
+    },
+  },
+  watch: {
+    location() {
+      if (this.location && this.location.lat && this.firstLoad) this.getLocationFromLatLng();
+    },
   },
 };
 </script>
 
 <style scoped>
-#map {
+.map-container {
   min-height: 360px;
   height: 100%;
 }

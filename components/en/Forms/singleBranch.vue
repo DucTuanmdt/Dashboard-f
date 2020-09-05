@@ -1,61 +1,66 @@
 <template>
-
   <div class="en-singleBranch">
     <v-card elevation="10" class="pa-5 mb-5">
       <v-form ref="branchform" v-model="valid">
-            <div class="en-singleBranch-main-left-form">
-              <v-select
-                v-model="branchData.merchant"
-                label="Merchant"
-                :rules="[(v) => !!v || 'Merchant is required']"
-                required
-                :items="merchants"
-                item-value="_id"
-                item-text="name"
-              />
-              <v-text-field v-model="branchData.name" :success="!!branchData.name" :rules="[(v) => !!v || 'Branch Name is required',]" label="Branch Name" required/>
-              <v-text-field
-                v-model="branchData.phone"
-                :success="!!branchData.phone"
-                :rules="[
+        <div class="en-singleBranch-main-left-form">
+          <v-select
+            v-model="branchData.merchant"
+            label="Merchant"
+            :rules="[(v) => !!v || 'Merchant is required']"
+            required
+            :items="merchants"
+            item-value="_id"
+            item-text="name"
+          />
+          <v-text-field
+            v-model="branchData.name"
+            :success="!!branchData.name"
+            :rules="[(v) => !!v || 'Branch Name is required',]"
+            label="Branch Name"
+            required
+          />
+          <v-text-field
+            v-model="branchData.phone"
+            :success="!!branchData.phone"
+            :rules="[
                   (v) => !!v || 'Phone Number is required',
                   (v) =>
                     (v && /^[0-9]+$/.test(v)) ||
                     'Phone Number must be digits only',
                 ]"
-                label="Phone Number"
-                required
-              />
+            label="Phone Number"
+            required
+          />
 
-              <v-text-field
-                v-model="branchData.email"
-                :success="!!branchData.email"
-                label="Email"
-                :rules="[
+          <v-text-field
+            v-model="branchData.email"
+            :success="!!branchData.email"
+            label="Email"
+            :rules="[
                   (v) => !!v || 'E-mail is required',
                   (v) => /.+@.+\..+/.test(v) || 'E-mail must be valid',
                 ]"
-                required
-              />
+            required
+          />
 
-              <v-text-field
-                v-model="branchData.password"
-                :success="!!branchData.password"
-                :rules="[(v) => !!v || 'Password is required']"
-                label="Password"
-                required
-                type="password"
-              />
+          <v-text-field
+            v-model="branchData.password"
+            :success="!!branchData.password"
+            :rules="[(v) => !!v || 'Password is required']"
+            label="Password"
+            required
+            type="password"
+          />
 
-              <v-text-field
-                v-model="branchData.address"
-                :success="!!branchData.address"
-                :rules="[(v) => !!v || 'Address is required']"
-                label="Address"
-                required
-              />
-              <div class="en-singleBranch-main-right">
-                <v-text-field
+          <v-text-field
+            v-model="branchData.address"
+            :success="!!branchData.address"
+            :rules="[(v) => !!v || 'Address is required']"
+            label="Address"
+            required
+          />
+          <div class="en-singleBranch-main-right">
+            <!-- <v-text-field
                   v-model="place"
                   :success="placeIsCorrect"
                   :rules="[(v) => !!v || 'Place is required']"
@@ -78,31 +83,33 @@
                       <span style="font-size: 10px;">{{ (suggest.vicinity) }}</span>
                     </div>
                   </div>
-                </div>
-              </div>
+            </div>-->
+            <map-search-place ::location="branchData.location" @onSelectedNewPlace="handleSelectedNewPlace" />
+          </div>
 
-              <v-file-input
-                ref="file"
-                v-model="Singlefile"
-                :success="!!Singlefile"
-                :rules="[(v) => !!v || 'Logo is required']"
-                accept="image/png, image/jpeg, image/bmp"
-                placeholder="Logo Upload"
-                prepend-icon="mdi-camera"
-                label="Logo Upload"
-                @change="onSingleChange"
-              />
-            </div>
+          <v-file-input
+            ref="file"
+            v-model="Singlefile"
+            :success="!!Singlefile"
+            :rules="[(v) => !!v || 'Logo is required']"
+            accept="image/png, image/jpeg, image/bmp"
+            placeholder="Logo Upload"
+            prepend-icon="mdi-camera"
+            label="Logo Upload"
+            @change="onSingleChange"
+          />
+        </div>
       </v-form>
     </v-card>
   </div>
 </template>
 
 <script>
-import { required, integer, email } from "vuelidate/lib/validators"
-import GoogleMapsNative from "~/components/en/General/GoogleMapsNative.vue"
-import buttonWithColors from "~/components/en/General/buttonWithColors.vue"
-import notification from "~/components/en/General/notification.vue"
+import { required, integer, email } from "vuelidate/lib/validators";
+import GoogleMapsNative from "~/components/en/General/GoogleMapsNative.vue";
+import buttonWithColors from "~/components/en/General/buttonWithColors.vue";
+import notification from "~/components/en/General/notification.vue";
+import MapSearchPlace from "@/components/map-search-place.vue";
 
 export default {
   name: "SingleBranch",
@@ -110,6 +117,7 @@ export default {
     GoogleMapsNative,
     buttonWithColors,
     notification,
+    MapSearchPlace,
   },
   props: {
     showMap: {
@@ -121,7 +129,7 @@ export default {
       default: 0,
     },
   },
-  data () {
+  data() {
     return {
       lat: 30.04,
       long: 31.23,
@@ -145,64 +153,67 @@ export default {
       Coverfile: [],
       valid: false,
       placeIsCorrect: false,
-    }
+    };
   },
   mounted() {
     let config = {
       headers: {
         authorization: localStorage.getItem("token"),
       },
-    }
+    };
     this.$axios
       .get("/merchants", config)
       .then((data) => {
-        this.merchants = data.data.merchants
+        this.merchants = data.data.merchants;
       })
       .catch((error) => {
-        console.log(error)
-      })
+        console.log(error);
+      });
   },
   watch: {
-    valid () {
+    valid() {
       if (this.$refs.branchform.validate() && !this.error) {
-        this.confirmSingleBranch()
+        this.confirmSingleBranch();
       }
     },
   },
   methods: {
-    SearchForAplace () {
-      this.suggestions = ""
+    SearchForAplace() {
+      this.suggestions = "";
       const getStatment =
         "https://places.ls.hereapi.com/places/v1/autosuggest?apiKey=lfJxURZOAcIIg5nEj-0Ioi72nWpw5iIF9NT3n_NPAKE&at=40.7539,-73.9837&q=" +
         this.place +
-        "&pretty"
+        "&pretty";
       this.$axios
         .get(getStatment)
         .then((result) => {
-          this.suggestions = result.data.results
+          this.suggestions = result.data.results;
           try {
             this.suggestions.map((suggest) => {
-              suggest.vicinity = suggest.vicinity.replace(/<\/?[^>]+(>|$)/g, "")
-              suggest.id = Math.random() * 1000
-            })
+              suggest.vicinity = suggest.vicinity.replace(
+                /<\/?[^>]+(>|$)/g,
+                ""
+              );
+              suggest.id = Math.random() * 1000;
+            });
           } catch {}
         })
         .catch((error) => {
-          console.log(error)
-        })
+          console.log(error);
+        });
     },
-    clickForPlace (e) {
+    clickForPlace(e) {
       try {
-        this.suggestions = ""
-        const myarray = e.target.getAttribute("posTitle").split(",")
-        this.place = e.target.getAttribute("showTitle")
+        this.suggestions = "";
+        const myarray = e.target.getAttribute("posTitle").split(",");
+        this.place = e.target.getAttribute("showTitle");
         const position = {
           lat: myarray[0],
           long: myarray[1],
-        }
-        this.lat = parseInt(position.lat)
-        this.long = parseInt(position.long)
-        this.branchData.location = position
+        };
+        this.lat = parseInt(position.lat);
+        this.long = parseInt(position.long);
+        this.branchData.location = position;
         let merchantForm = {
           index: this.branchesNumber,
           data: {
@@ -212,88 +223,90 @@ export default {
               long: position.long,
             },
           },
-        }
-        this.$store.commit("updateMerchantForms", merchantForm)
-        const map = this.$refs.map
-        map.dropMarker(position)
-        this.placeIsCorrect = true
+        };
+        this.$store.commit("updateMerchantForms", merchantForm);
+        const map = this.$refs.map;
+        map.dropMarker(position);
+        this.placeIsCorrect = true;
       } catch {}
     },
-    createSingleImage (file) {
+    createSingleImage(file) {
       // eslint-disable-next-line no-unused-vars
-      const image = new Image()
-      const reader = new FileReader()
-      const vm = this
+      const image = new Image();
+      const reader = new FileReader();
+      const vm = this;
       reader.onload = (e) => {
-        vm.SingleImage = this.Singlefile
-      }
-      reader.readAsDataURL(file)
+        vm.SingleImage = this.Singlefile;
+      };
+      reader.readAsDataURL(file);
     },
-    removeSingle (e) {
-      this.SingleImage = ""
+    removeSingle(e) {
+      this.SingleImage = "";
     },
-    onSingleChange (e) {
+    onSingleChange(e) {
       if (this.Singlefile) {
-        const formDataa = new FormData()
-        formDataa.append("image", this.Singlefile)
+        const formDataa = new FormData();
+        formDataa.append("image", this.Singlefile);
         let config = {
           headers: {
             authorization: localStorage.getItem("token"),
             "Content-Type": `application/json'; boundary=${formDataa._boundary}`,
           },
-        }
-        this.$axios.post("/upload/image", formDataa, config)
+        };
+        this.$axios
+          .post("/upload/image", formDataa, config)
           .then((response) => {
-            this.createSingleImage(this.Singlefile)
+            this.createSingleImage(this.Singlefile);
             const branchData = {
               index: this.branchesNumber,
               data: response.data.dataimages[0].imageUrl,
-            }
-            this.$store.commit("updateBranches", branchData)
-          })
+            };
+            this.$store.commit("updateBranches", branchData);
+          });
       }
     },
-    createSingleCover (file) {
+    createSingleCover(file) {
       // eslint-disable-next-line no-unused-vars
-      const image = new Image()
-      const reader = new FileReader()
-      const vm = this
+      const image = new Image();
+      const reader = new FileReader();
+      const vm = this;
       reader.onload = (e) => {
-        vm.SingleCover = this.Coverfile
-      }
-      reader.readAsDataURL(file)
+        vm.SingleCover = this.Coverfile;
+      };
+      reader.readAsDataURL(file);
     },
-    removeSingleCover (e) {
-      this.SingleCover = ""
+    removeSingleCover(e) {
+      this.SingleCover = "";
     },
-    onSingleCoverChange (e) {
+    onSingleCoverChange(e) {
       if (this.Coverfile) {
-        const formDataa = new FormData()
-        formDataa.append("image", this.Coverfile)
+        const formDataa = new FormData();
+        formDataa.append("image", this.Coverfile);
         let config = {
           headers: {
             authorization: localStorage.getItem("token"),
             "Content-Type": `application/json'; boundary=${formDataa._boundary}`,
           },
-        }
-        this.$axios.post("/upload/image", formDataa, config)
+        };
+        this.$axios
+          .post("/upload/image", formDataa, config)
           .then((response) => {
-            this.createSingleImage(this.Singlefile)
+            this.createSingleImage(this.Singlefile);
             const branchData = {
               index: this.branchesNumber,
               data: response.data.dataimages[0].imageUrl,
-              index_type: 'cover',
-            }
-            this.$store.commit("updateBranches", branchData)
-          })
+              index_type: "cover",
+            };
+            this.$store.commit("updateBranches", branchData);
+          });
       }
     },
-    confirmSingleBranch () {
-      this.error = ""
-      this.success = ""
+    confirmSingleBranch() {
+      this.error = "";
+      this.success = "";
       // this.$v.$touch()
       if (this.$refs.branchform.validate()) {
-        this.$store.commit("validateBranch")
+        this.$store.commit("validateBranch");
 
         let merchantForm = {
           index: this.branchesNumber,
@@ -301,59 +314,59 @@ export default {
             key: "name",
             value: this.branchData.name,
           },
-        }
-        console.log(merchantForm)
-        this.$store.commit("updateMerchantForms", merchantForm)
+        };
+        console.log(merchantForm);
+        this.$store.commit("updateMerchantForms", merchantForm);
         merchantForm = {
           index: this.branchesNumber,
           data: {
             key: "merchant",
             value: this.branchData.merchant,
           },
-        }
-        this.$store.commit("updateMerchantForms", merchantForm)
+        };
+        this.$store.commit("updateMerchantForms", merchantForm);
         merchantForm = {
           index: this.branchesNumber,
           data: {
             key: "phone",
             value: this.branchData.phone,
           },
-        }
-        this.$store.commit("updateMerchantForms", merchantForm)
+        };
+        this.$store.commit("updateMerchantForms", merchantForm);
         merchantForm = {
           index: this.branchesNumber,
           data: {
             key: "email",
             value: this.branchData.email,
           },
-        }
-        this.$store.commit("updateMerchantForms", merchantForm)
+        };
+        this.$store.commit("updateMerchantForms", merchantForm);
         merchantForm = {
           index: this.branchesNumber,
           data: {
             key: "password",
             value: this.branchData.password,
           },
-        }
-        this.$store.commit("updateMerchantForms", merchantForm)
+        };
+        this.$store.commit("updateMerchantForms", merchantForm);
         merchantForm = {
           index: this.branchesNumber,
           data: {
             key: "address",
             value: this.branchData.address,
           },
-        }
-        this.$store.commit("updateMerchantForms", merchantForm)
-        console.log(this.$store.state.merchantData.branches)
-        this.success = "Confirmed"
+        };
+        this.$store.commit("updateMerchantForms", merchantForm);
+        console.log(this.$store.state.merchantData.branches);
+        this.success = "Confirmed";
       } else if (
         !(
           Object.keys(this.branchData.location).length === 0 &&
-            (this.branchData.location.constructor === Object) != ""
+          (this.branchData.location.constructor === Object) != ""
         )
       ) {
         if (this.SingleCover === "" || this.SingleImage === "") {
-          this.error = "Please Upload the required Images"
+          this.error = "Please Upload the required Images";
         } else {
           const formBranch = {
             index: this.branchesNumber,
@@ -361,15 +374,20 @@ export default {
               key: "status",
               value: false,
             },
-          }
-          this.$store.commit("updateMerchantForms", formBranch)
+          };
+          this.$store.commit("updateMerchantForms", formBranch);
         }
       } else {
-        this.error = "You have to choose a location"
+        this.error = "You have to choose a location";
       }
     },
+    handleSelectedNewPlace(data) {
+      console.log("Received new location", data);
+      this.branchData.location = data.location;
+      this.place = data.address;
+    },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -448,7 +466,7 @@ input[type="file"] {
   margin-bottom: 10px;
 }
 .en-singleBranch-main-right {
-   width: 100%;
+  width: 100%;
 }
 .en-singleBranch-main-left {
   width: 100% !important;
