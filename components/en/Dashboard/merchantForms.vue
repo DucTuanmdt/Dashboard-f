@@ -126,9 +126,9 @@ export default {
     },
     merchantFormValidated(status) {
       status = true;
-      const data = this.$refs.mForm._data;
+      const data = this.$refs.mForm;
       console.log(data.location);
-      if (!data.location.lat || !data.location.long) {
+      if (!data.location.lat || !data.location.lng) {
         this.$refs.snackbar.open(
           "Sorry, Please fill the location field",
           4500,
