@@ -91,7 +91,7 @@ export default {
         };
         const location = JSON.parse(JSON.stringify(place.geometry.location));
         location.lat = location.lat + '';
-        location.lng = location.lat + '';
+        location.long = location.lng + '';
         const data = {
           address: place.name,
           location,
