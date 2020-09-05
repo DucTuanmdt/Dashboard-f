@@ -103,14 +103,15 @@
                   type="password"
                 />
                 <div class="en-singleBranch-main-right" >
-                  <v-text-field
+                  <!-- <v-text-field
                     id="search-field-map-input"
                     v-model="place"
                     :success="placeIsCorrect"
                     :rules="[(v) => !!v || 'Place is required']"
                     label="Search for a place"
                     placeholder="Search for a place"
-                  />
+                  /> -->
+                  <map-search-place @onSelectedNewPlace="handleSelectedNewPlace"/>
                   
                 </div>
 
@@ -162,14 +163,14 @@
 import { required, integer, email } from "vuelidate/lib/validators"
 import GoogleMapsNative from "~/components/en/General/GoogleMapsNative.vue"
 import notification from "~/components/en/General/notification.vue"
-import InputMapSearchPlace from "@/components/input-map-search-place.vue"
+import MapSearchPlace from "@/components/map-search-place.vue"
 
 export default {
   name: "MerchantForm",
   components: {
     GoogleMapsNative,
     notification,
-    InputMapSearchPlace,
+    MapSearchPlace,
   },
   props: {
     showMap: {
@@ -233,7 +234,7 @@ export default {
     },
   },
   mounted () {
-    this.initAutocompleteMapInput();
+    // this.initAutocompleteMapInput();
     this.$axios.get("/categories", {
       headers: { authorization: localStorage.getItem("token"), },
     }).then((data) => {
@@ -367,6 +368,13 @@ export default {
         }
       });
     },
+    handleSelectedNewPlace(data) {
+      console.log('Received new location', data)
+      this.location_status = "selected";
+      this.location = data.location;
+      this.place = data.address
+
+    }
   },
   // validations: {
   //   Name: {

@@ -1,8 +1,6 @@
 <template>
   <div class="mb-4">
-    <v-card class="p-4">
-      <v-text-field id="search-map-input" placeholder="Type your store's name or address" outlined></v-text-field>
-    </v-card>
+      <v-text-field id="search-map-input" placeholder="Search for a place"></v-text-field>
     <div id="map"></div>
   </div>
 </template>
@@ -37,7 +35,7 @@ export default {
 
       // Create the search box and link it to the UI element.
       // const searchInput = this.$refs.searchPlaceInput;
-      const searchInput = document.querySelector("#search-map-input")
+      const searchInput = document.querySelector("#search-map-input");
       if (!searchInput) {
         return;
       }
@@ -55,7 +53,7 @@ export default {
         searchInput.value = this.mapData.place.formatted_address || "";
       }
       searchBox.addListener("places_changed", () => {
-        console.log("AN", searchBox.getPlaces())
+        console.log("AN", searchBox.getPlaces());
         var places = searchBox.getPlaces();
         this.setMarker(places);
       });
@@ -91,6 +89,13 @@ export default {
           geometry: place.geometry,
           formatted_address: place.formatted_address,
         };
+        const location = JSON.parse(JSON.stringify(place.geometry.location));
+        const data = {
+          address: place.name,
+          location,
+        };
+        console.log("Emit selected new place", data);
+        this.$emit("onSelectedNewPlace", data);
         this.mapData.placeLocation = JSON.parse(
           JSON.stringify(this.mapData.place)
         ).geometry.location;
