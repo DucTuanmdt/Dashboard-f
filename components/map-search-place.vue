@@ -90,6 +90,8 @@ export default {
           formatted_address: place.formatted_address,
         };
         const location = JSON.parse(JSON.stringify(place.geometry.location));
+        location.lat = location.lat + '';
+        location.lng = location.lat + '';
         const data = {
           address: place.name,
           location,
