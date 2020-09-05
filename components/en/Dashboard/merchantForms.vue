@@ -70,8 +70,6 @@
         </div>
       </v-layout>
     </v-layout>
-    <!-- <map-search-place/> -->
-    <!-- <input-map-search-place @onSelectedNewPlace="handleSelectedNewPlace"/> -->
   </div>
 </template>
 

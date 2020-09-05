@@ -21,7 +21,7 @@ export default {
 
   mounted() {
     this.initAutocomplete();
-    console.log("The code is updated (map-search-place)");
+    console.log("The code is updated (map-search-place) v2");
   },
   methods: {
     initAutocomplete() {
