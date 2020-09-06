@@ -113,7 +113,10 @@
                                   </div>
                                 </div>
                               </div>-->
-                              <map-search-place :location="merchantData.location" @onSelectedNewPlace="handleSelectedNewPlace" />
+                              <map-search-place
+                                :location="merchantData.location"
+                                @onSelectedNewPlace="handleSelectedNewPlace"
+                              />
                             </div>
 
                             <div
@@ -306,12 +309,12 @@ export default {
     merchantBranches,
     buttonWithColors,
     snackbar,
-    MapSearchPlace
+    MapSearchPlace,
   },
   props: {
     merchant: {
       type: Array,
-      default: []
+      default: [],
     },
   },
 
@@ -452,7 +455,25 @@ export default {
       }
     },
   },
+  mounted() {
+    this.fetchCategories();
+  },
   methods: {
+    // get categories
+    fetchCategories() {
+      this.$axios
+        .get("/categories", {
+          headers: { authorization: localStorage.getItem("token") },
+        })
+        .then((data) => {
+          this.categories = data.data.data;
+          if (this.categories.length) {
+            this.flattenCategoriesRecursively(this.categories);
+          } else {
+            console.log("category data empty");
+          }
+        });
+    },
     //contact
     submitContactWithPrevious() {
       this.error = "";
@@ -628,21 +649,33 @@ export default {
     },
     updateMerchant() {
       this.loading = true;
-      let merchantData = this.merchantData;
+      let merchantData = {...this.merchantData};
       let config = {
         headers: {
           authorization: localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
       };
+      console.log("merchantData: ", merchantData)
+      let listUnusedKey = ["accTypes", "fileAdded", "payments", "coupons"]
+      delete merchantData.accTypes
+      delete merchantData.fileAdded
+      delete merchantData.payments
+      delete merchantData.coupons
+
       const asyncSubmitting = async () => {
-        const formDataa = new FormData();
-        formDataa.append("image", this.merchantData.image);
-        await this.$axios
-          .post("/upload/image", formDataa, config)
-          .then((data) => {
-            this.merchantData.image = data.data.dataimages[0].imageUrl;
-          });
+        if (this.merchantData.image) {
+          // only call api upload image when it's not empty and not an url
+          if (!this.merchantData.image.includes("http")) {
+            const formDataa = new FormData();
+            formDataa.append("image", this.merchantData.image);
+            await this.$axios
+              .post("/upload/image", formDataa, config)
+              .then((data) => {
+                this.merchantData.image = data.data.dataimages[0].imageUrl;
+              });
+          }
+        }
         await this.$axios
           .put("/merchants/" + this.merchant[0]._id, merchantData, config)
           .then((result) => {
@@ -666,11 +699,11 @@ export default {
       asyncSubmitting();
     },
     handleSelectedNewPlace(data) {
-      console.log('Received new location', data)
+      console.log("Received new location", data);
       this.location_status = "selected";
       this.merchantData.location = data.location;
-      this.place = data.address
-    }
+      this.place = data.address;
+    },
   },
 };
 </script>

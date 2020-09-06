@@ -234,7 +234,6 @@ export default {
     },
   },
   mounted () {
-    // this.initAutocompleteMapInput();
     this.$axios.get("/categories", {
       headers: { authorization: localStorage.getItem("token"), },
     }).then((data) => {
@@ -344,29 +343,6 @@ export default {
         this.flatCategories.push(cat)
         if (cat.root.length) { this.flattenCategoriesRecursively(cat.root) } else {}
       })
-    },
-    initAutocompleteMapInput() {
-      // Create the search box and link it to the UI element.
-      const searchInput = document.querySelector("#search-field-map-input");
-      if (!searchInput) {
-        return;
-      }
-      this.mapInputAutocomplete = new google.maps.places.SearchBox(searchInput);
-
-      // Listen for the event fired when the user selects a prediction and retrieve
-      // more details for that place.
-      this.mapInputAutocomplete.addListener("places_changed", () => {
-        const place = this.mapInputAutocomplete.getPlaces()[0];
-        if ((place.geometry || {}).location) {
-          console.log("DX", place)
-          this.place = place.name
-          this.location = JSON.parse(JSON.stringify(place.geometry.location));
-          this.location_status = "selected"
-          console.log("Selected new place", this.location);
-        } else {
-          searchInput.value = "";
-        }
-      });
     },
     handleSelectedNewPlace(data) {
       console.log('Received new location', data)

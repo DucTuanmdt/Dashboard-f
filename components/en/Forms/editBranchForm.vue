@@ -90,7 +90,7 @@
                 </div>
               </div>
             </div> -->
-              <map-search-place @onSelectedNewPlace="handleSelectedNewPlace"/>
+              <map-search-place ::location="branchData.location" @onSelectedNewPlace="handleSelectedNewPlace"/>
           </div>
 
           <div class="en-CategoryForm-content-row">
