@@ -28,7 +28,7 @@ export default {
     ],
     link: [{ rel: "icon", type: "image/x-icon", href: "https://i.ibb.co/VHpBQTf/logo.png", }],
     script: [
-      {src: "https://maps.googleapis.com/maps/api/js?key=AIzaSyBw0Zl7Ah1gMPC6U7umHaHWXNwOAjglgwA&libraries=places&v=weekly"}
+      {src: "https://maps.googleapis.com/maps/api/js?key=AIzaSyAtVRigDzJCRcry3xmqwsATJgu-CGKISjA&libraries=places&v=weekly"}
     ]
   },
   typescript: {
